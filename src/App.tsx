@@ -1,9 +1,12 @@
+import Content from "./components/Content";
 import { ToastProvider } from "./components/ToastProvider";
 
 function App() {
   return (
     <div>
-      <ToastProvider />
+      <ToastProvider>
+        <Content />
+      </ToastProvider>
     </div>
   );
 }

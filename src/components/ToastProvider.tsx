@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import styled from "styled-components";
 import { v4 as uuidv4 } from 'uuid';
+import { ToastType } from "../types/Toast";
 import { Toast } from "./Toast";
 
 const NotificationContainer = styled.div`
@@ -16,47 +17,50 @@ const NotificationContainer = styled.div`
   }
 `
 
-export function ToastProvider() {
+export const ToastContext = React.createContext<{
+  dispatchToast: (args: Pick<ToastType, 'title' | 'description'>) => void
+}>({
+  dispatchToast: () => { }
+})
+
+export const ToastProvider = ({ children }: { children: React.ReactNode }) => {
   const [isHovering, setIsHovering] = useState(false)
-  const [toastList, setToastList] = useState<any[]>([])
+  const [toastList, setToastList] = useState<ToastType[]>([])
   const [heights, setHeights] = useState<any[]>([])
 
-  useEffect(() => {
-    let itens = 0
-    const interval = setInterval(() => {
-      if (itens >= 10) {
-        return
-      }
-      itens++
-      setToastList(toastList => [{
-        title: `Toast ${toastList.length + 1}`,
-        description: 'test',
-        timestamp: new Date(),
-        id: uuidv4(),
-        index: toastList.length + 1
-      }, ...toastList])
-    }, 1000)
-    return () => clearInterval(interval)
+  const addToast = useCallback(({ title, description }: { title: string, description?: string }) => {
+    setToastList(toastList => [{
+      title: title,
+      description: description,
+      timestamp: new Date(),
+      id: uuidv4(),
+    }, ...toastList])
   }, [])
 
   return (
-    <NotificationContainer onMouseOver={() => setIsHovering(true)} onMouseOut={() => setIsHovering(false)}>
-      {
-        [...toastList].map((toast, index) => (
-          <Toast
-            heights={heights}
-            setHeights={setHeights}
-            index={index}
-            isHovering={isHovering}
-            key={toast.id}
-            title={toast.title}
-            id={toast.id}
-            timestamp={toast.timestamp}
-            description={toast.index % 2 !== 0 ? toast.description : ''}
-          />
-        ))
-      }
-    </NotificationContainer >
+    <ToastContext.Provider value={{
+      dispatchToast: addToast
+    }}>
+      {children}
+      <NotificationContainer onMouseOver={() => setIsHovering(true)} onMouseOut={() => setIsHovering(false)}>
+        {
+          [...toastList].map((toast, index) => (
+            <Toast
+              heights={heights}
+              setHeights={setHeights}
+              index={index}
+              isHovering={isHovering}
+              key={toast.id}
+              title={toast.title}
+              id={toast.id}
+              timestamp={toast.timestamp}
+              description={toast.description}
+            />
+          ))
+        }
+      </NotificationContainer >
+    </ToastContext.Provider>
+
   )
 }
 
