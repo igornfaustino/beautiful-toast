@@ -4,3 +4,5 @@ export type ToastType = {
   description?: string
   timestamp: Date
 }
+
+export type Height = { height: number, id: string }

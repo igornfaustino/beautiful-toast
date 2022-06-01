@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
+import { Height } from '../types/Toast';
 
 const StyledToast = styled(motion.div) <{ index: number, isHovering?: Boolean }>`
   background: #fff;
@@ -27,11 +28,12 @@ type Props = {
   description?: string,
   index: number,
   isHovering: Boolean,
-  heights: any[]
-  setHeights: React.Dispatch<React.SetStateAction<any[]>>
+  heights: Height[]
+  setHeights: React.Dispatch<React.SetStateAction<Height[]>>
+  deleteToast: (id: string) => void
 }
 
-export const Toast = ({ id, timestamp, title, description, isHovering, index, heights, setHeights }: Props) => {
+export const Toast = ({ id, deleteToast, title, description, isHovering, index, heights, setHeights }: Props) => {
   const ref = useRef<HTMLDivElement>(null)
   const [currHeight, setCurrHeight] = useState<number | undefined>(0)
 
@@ -50,7 +52,7 @@ export const Toast = ({ id, timestamp, title, description, isHovering, index, he
   const stackView = (index: number) => `translateY(calc(-15px * ${index})) scale(calc(-1 * ${index} * 0.05 + 1))`
 
   useEffect(() => {
-    const currentHeight = ref.current?.clientHeight
+    const currentHeight = ref.current?.clientHeight || 0
     setHeights((heights) => [{ height: currentHeight, id: id }, ...heights.filter((h) => h.id !== id)])
     setCurrHeight(currentHeight)
   }, [setHeights, id])
@@ -67,6 +69,7 @@ export const Toast = ({ id, timestamp, title, description, isHovering, index, he
       transform: isHovering ? listView() : stackView(index),
       opacity: index > 2 ? 0 : 1
     }}
+    onClick={() => deleteToast(id)}
   >
     <h4>
       {title}
