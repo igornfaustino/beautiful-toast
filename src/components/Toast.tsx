@@ -1,9 +1,10 @@
 import { motion } from 'framer-motion';
 import { useEffect, useRef, useState } from 'react';
+import { MdClose } from 'react-icons/md';
 import styled from 'styled-components';
 import { Height } from '../types/Toast';
 
-const StyledToast = styled(motion.div) <{ index: number, isHovering?: Boolean }>`
+const StyledToast = styled(motion.div) <{ index: number }>`
   background: #fff;
 	position: absolute;
 	pointer-events: auto;
@@ -19,6 +20,20 @@ const StyledToast = styled(motion.div) <{ index: number, isHovering?: Boolean }>
 	background-position: 15px;
 	background-repeat: no-repeat;
   z-index: ${({ index }) => 1000 - index};
+`
+const DeleteButton = styled(motion.div)`
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #999;
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  padding: 3px;
+  cursor: pointer;
+  display:block;
+  box-sizing: border-box;
+  opacity: 0;
 `
 
 type Props = {
@@ -69,8 +84,21 @@ export const Toast = ({ id, deleteToast, title, description, isHovering, index, 
       transform: isHovering ? listView() : stackView(index),
       opacity: index > 2 ? 0 : 1
     }}
-    onClick={() => deleteToast(id)}
   >
+    <DeleteButton
+      onClick={() => deleteToast(id)}
+      animate={{
+        opacity: isHovering ? 1 : 0
+      }}
+      whileHover={{
+        scale: 1.1
+      }}
+      whileTap={{
+        scale: 0.9
+      }}
+    >
+      <MdClose />
+    </DeleteButton>
     <h4>
       {title}
     </h4>
